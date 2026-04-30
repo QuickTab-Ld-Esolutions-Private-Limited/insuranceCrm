@@ -1,0 +1,80 @@
+.crm-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+
+  .sidebar {
+    width: var(--sidebar-w);
+    background-color: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-weight: 500;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+
+        &:hover {
+          background-color: var(--bg-color);
+          color: var(--text-main);
+        }
+
+        &.active {
+          background-color: var(--primary);
+          color: white;
+        }
+      }
+    }
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 2rem;
+    margin-left: var(--sidebar-w);
+    overflow-y: auto;
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+      padding-top: 4rem;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+      h2 {
+        font-size: 1.8rem;
+        color: var(--text-main);
+      }
+      p {
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+      }
+    }
+  }
+}
