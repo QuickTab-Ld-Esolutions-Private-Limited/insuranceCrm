@@ -67,7 +67,6 @@ const InsuranceTable: React.FC<InsuranceTableProps> = ({ records }) => {
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="expired">Expired</option>
-            <option value="renewed">Renewed</option>
           </select>
         </div>
 
