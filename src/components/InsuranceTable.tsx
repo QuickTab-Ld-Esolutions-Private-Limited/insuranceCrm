@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { ToastContainer, toast } from "react-toastify";
 
 /** components */
 import Modal from "./Modal";
@@ -6,30 +7,189 @@ import Modal from "./Modal";
 /** styles */
 import "./InsuranceTable.scss";
 
+/** icons */
+import { FaSearch } from "react-icons/fa";
+
 /** interfaces */
-import type { IInsuranceRecord } from "../interface/crmInterface";
+import type {
+  IInsuranceRecord,
+  IUpdateInsuranceRecord,
+} from "../interface/crmInterface";
 
-interface InsuranceTableProps {
-  records: IInsuranceRecord[];
-}
-
-const InsuranceTable: React.FC<InsuranceTableProps> = ({ records }) => {
+const InsuranceTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRecord, setSelectedRecord] = useState<IInsuranceRecord | null>(
     null,
   );
+  const [statusFilter, setStatusFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState({
+    startDate: "",
+    endDate: "",
+  });
+
+  const [formLoading, setFormLoading] = useState(false);
+  const [responseData, setResponseData] = useState<IInsuranceRecord[]>([]);
+
+  const handleFetchData = async () => {
+    try {
+      setFormLoading(true);
+      const response = await fetch(
+        "http://localhost/insuranceCrm-backend/api/insurance/form-data",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      setResponseData(data?.data);
+
+      console.log("Response Data:", data?.data);
+
+      return data;
+    } catch (error) {
+      console.error("Real Error:", error);
+      throw new Error("Request failed", { cause: error });
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDeleteEntry = async (record: IInsuranceRecord) => {
+    try {
+      const response = await fetch(
+        "http://localhost/insuranceCrm-backend/delete/insurance-form",
+        {
+          method: "DELETE",
+          body: JSON.stringify({
+            id: record.id,
+            customerName: record.customerName,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      console.log("Response Data:", data);
+
+      if (data.success) {
+        toast.success(data.message);
+        handleFetchData();
+      } else {
+        toast.error(data.message);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Real Error:", error);
+      throw new Error("Request failed", { cause: error });
+    }
+  };
+
+  const handleUpdateRecord = async (updatedRecord: IUpdateInsuranceRecord) => {
+    try {
+      const response = await fetch(
+        "http://localhost/insuranceCrm-backend/update/insurance-form",
+        {
+          method: "PATCH",
+          body: JSON.stringify(updatedRecord),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await response.json();
+
+      console.log("Response Data:", data);
+
+      // update modal data
+      setSelectedRecord((prev) =>
+        prev ? { ...prev, ...updatedRecord } : prev,
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        handleFetchData();
+      } else {
+        toast.error(data.message);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Real Error:", error);
+      throw new Error("Request failed", { cause: error });
+    }
+  };
+
+  const hasFetched = useRef(false);
+
+  useEffect(() => {
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
+
+    handleFetchData();
+  }, []);
+
   const itemsPerPage = 6;
 
   // Filter logic
   const filteredRecords = useMemo(() => {
-    return records.filter(
-      (record) =>
-        record.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.policyNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.regNo.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [records, searchTerm]);
+    return responseData.filter((record) => {
+      // 🔍 Search
+      const matchesSearch =
+        !searchTerm ||
+        record.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.policyNo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.regNo?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // 📊 Status
+      const matchesStatus =
+        !statusFilter ||
+        record.status.toLocaleLowerCase() === statusFilter.toLocaleLowerCase();
+
+      // console.log(dateFilter);
+
+      // 📅 Date
+      let matchesDate = true;
+
+      const normalizeDate = (d: string) => {
+        const date = new Date(d);
+        date.setHours(0, 0, 0, 0);
+        return date.getTime();
+      };
+
+      const recordDate = normalizeDate(record.policyDate); // or parseDate()
+
+      if (dateFilter.startDate) {
+        matchesDate =
+          matchesDate && recordDate >= normalizeDate(dateFilter.startDate);
+      }
+
+      if (dateFilter.endDate) {
+        matchesDate =
+          matchesDate && recordDate <= normalizeDate(dateFilter.endDate);
+      }
+
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+  }, [
+    responseData,
+    searchTerm,
+    statusFilter,
+    dateFilter.startDate,
+    dateFilter.endDate,
+  ]);
+
+  // console.log(filteredRecords);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
@@ -43,7 +203,7 @@ const InsuranceTable: React.FC<InsuranceTableProps> = ({ records }) => {
       <div className="table-controls">
         {/* Search */}
         <div className="search-box">
-          {/* <Search size={18} /> */}
+          <FaSearch size={18} />
           <input
             type="text"
             placeholder="Search by name, policy, or reg no..."
@@ -58,11 +218,11 @@ const InsuranceTable: React.FC<InsuranceTableProps> = ({ records }) => {
         {/* Status Filter */}
         <div className="filter-box">
           <select
-          // value={statusFilter}
-          // onChange={(e) => {
-          //   setStatusFilter(e.target.value);
-          //   setCurrentPage(1);
-          // }}
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setCurrentPage(1);
+            }}
           >
             <option value="">All Status</option>
             <option value="active">Active</option>
@@ -74,20 +234,23 @@ const InsuranceTable: React.FC<InsuranceTableProps> = ({ records }) => {
         <div className="date-filter">
           <input
             type="date"
-            // value={startDate}
-            // onChange={(e) => {
-            //   setStartDate(e.target.value);
-            //   setCurrentPage(1);
-            // }}
+            value={dateFilter.startDate}
+            onChange={(e) => {
+              setDateFilter({
+                ...dateFilter,
+                startDate: e.target.value,
+              });
+              setCurrentPage(1);
+            }}
           />
           <span>to</span>
           <input
             type="date"
-            // value={endDate}
-            // onChange={(e) => {
-            //   setEndDate(e.target.value);
-            //   setCurrentPage(1);
-            // }}
+            value={dateFilter.endDate}
+            onChange={(e) => {
+              setDateFilter({ ...dateFilter, endDate: e.target.value });
+              setCurrentPage(1);
+            }}
           />
         </div>
       </div>
@@ -107,6 +270,16 @@ const InsuranceTable: React.FC<InsuranceTableProps> = ({ records }) => {
             </tr>
           </thead>
           <tbody>
+            {formLoading && (
+              <tr>
+                <td
+                  colSpan={5}
+                  style={{ textAlign: "center", padding: "2rem" }}
+                >
+                  Fetching data from database ...
+                </td>
+              </tr>
+            )}
             {paginatedRecords.length > 0 ? (
               paginatedRecords.map((record) => (
                 <tr key={record.id} onClick={() => setSelectedRecord(record)}>
@@ -114,28 +287,10 @@ const InsuranceTable: React.FC<InsuranceTableProps> = ({ records }) => {
                   <td>{record.policyNo}</td>
                   <td>{record.regNo}</td>
                   <td>{record.mobileNo}</td>
-                  <td>
-                    {record.policyDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "2-digit",
-                    })}
-                  </td>
-                  <td>
-                    {record.expiryDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "2-digit",
-                    })}
-                  </td>
+                  <td>{record.policyDate}</td>
+                  <td>{record.expiryDate}</td>
                   <td>{record.status}</td>
-                  <td>
-                    {record.createdAt.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "2-digit",
-                    })}
-                  </td>
+                  <td>{record.createdAt}</td>
                 </tr>
               ))
             ) : (
@@ -176,8 +331,11 @@ const InsuranceTable: React.FC<InsuranceTableProps> = ({ records }) => {
         <Modal
           record={selectedRecord}
           onClose={() => setSelectedRecord(null)}
+          onDelete={handleDeleteEntry}
+          onUpdate={handleUpdateRecord}
         />
       )}
+      <ToastContainer />
     </div>
   );
 };

@@ -13,17 +13,12 @@ import {
 } from "react-icons/fa";
 
 /** interfaces */
-interface SidebarProps {
+interface ISidebar {
   activeTab: "form" | "table";
   setActiveTab: (tab: "form" | "table") => void;
 }
 
-interface SidebarProps {
-  activeTab: "form" | "table";
-  setActiveTab: (tab: "form" | "table") => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+const Sidebar: React.FC<ISidebar> = ({ activeTab, setActiveTab }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => setIsOpen(!isOpen);

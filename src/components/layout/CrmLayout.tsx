@@ -8,38 +8,8 @@ import InsuranceTable from "../InsuranceTable";
 /** styles */
 import "./CrmLayout.scss";
 
-/** interfaces */
-import type { IInsuranceRecord } from "../../interface/crmInterface";
-
 const CRMLayout = () => {
   const [activeTab, setActiveTab] = useState<"form" | "table">("form");
-  const [records, setRecords] = useState<IInsuranceRecord[]>([]);
-
-  const handleAddRecord = (
-    record: Omit<IInsuranceRecord, "id" | "createdAt">,
-  ) => {
-    const newRecord: IInsuranceRecord = {
-      ...record,
-      id: crypto.randomUUID(),
-      createdAt: new Date(),
-    };
-    setRecords([newRecord, ...records]);
-    setActiveTab("table"); // Auto-switch to table to see the new data
-  };
-
-  // const handleUpdateRecord = (updatedRecord: IInsuranceRecord) => {
-  //   const updatedRecords = records.map((rec) =>
-  //     rec.id === updatedRecord.id
-  //       ? {
-  //           ...updatedRecord,
-  //           id: rec.id,
-  //           createdAt: rec.createdAt,
-  //         }
-  //       : rec,
-  //   );
-
-  //   setRecords(updatedRecords);
-  // };
 
   return (
     <div className="crm-layout">
@@ -58,9 +28,9 @@ const CRMLayout = () => {
         </div>
 
         {activeTab === "form" ? (
-          <InsuranceForm onSubmit={handleAddRecord} />
+          <InsuranceForm setActiveTab={setActiveTab} />
         ) : (
-          <InsuranceTable records={records} />
+          <InsuranceTable />
         )}
       </main>
     </div>

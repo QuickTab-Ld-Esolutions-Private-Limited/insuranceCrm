@@ -6,7 +6,17 @@ export interface IInsuranceRecord {
   mobileNo: string;
   email: string;
   status: string;
-  policyDate: Date;
-  expiryDate: Date;
-  createdAt: Date;
+  policyDate: string;
+  expiryDate: string;
+  entryAt: string;
+  createdAt: string;
+}
+
+export interface IUpdateInsuranceRecord extends Partial<IInsuranceRecord> {
+  id: string;
+  mobileNo?: string;
+  email?: string;
+  status?: string;
+  policyDate?: string;
+  expiryDate?: string;
 }

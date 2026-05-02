@@ -1,17 +1,16 @@
 import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
 
 /** styles */
 import "./InsuranceForm.scss";
 
-/** interfaces */
-import type { IInsuranceRecord } from "../interface/crmInterface";
-
-interface InsuranceFormProps {
-  onSubmit: (record: Omit<IInsuranceRecord, "id" | "createdAt">) => void;
+interface IInsuranceForm {
+  setActiveTab: (tab: "form" | "table") => void;
 }
 
-const InsuranceForm: React.FC<InsuranceFormProps> = ({ onSubmit }) => {
+const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
   const [formData, setFormData] = useState({
+    id: "",
     customerName: "",
     regNo: "",
     policyNo: "",
@@ -21,33 +20,73 @@ const InsuranceForm: React.FC<InsuranceFormProps> = ({ onSubmit }) => {
     policyDate: "",
     expiryDate: "",
   });
+  const [formLoading, setFormLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Format Date
+  const formatDate = (date: Date) => date.toISOString().split("T")[0];
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const submissionData = {
       ...formData,
-      status: "Active",
-      expiryDate: new Date(
-        new Date().setFullYear(new Date().getFullYear() + 1), // 1 year Expiry
+      id: crypto.randomUUID(),
+      createdAt: new Date(),
+      status: "active",
+      policyDate: formatDate(new Date()),
+      expiryDate: formatDate(
+        new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
       ),
-      policyDate: new Date(),
     };
 
     console.log(submissionData);
 
-    onSubmit(submissionData);
+    try {
+      setFormLoading(true);
+      const response = await fetch(
+        "http://localhost/insuranceCrm-backend/submit/insurance-form",
+        {
+          method: "POST",
+          body: JSON.stringify(submissionData),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
-    // Reset form
-    // setFormData({
-    //   customerName: "",
-    //   regNo: "",
-    //   policyNo: "",
-    //   mobileNo: "",
-    //   email: "",
-    //   status: "",
-    //   policyDate: "",
-    // });
+      const data = await response.json();
+
+      console.log("Response Data:", data);
+
+      if (data.success) {
+        toast.success(data.message);
+
+        // Reset form
+        setFormData({
+          id: "",
+          customerName: "",
+          regNo: "",
+          policyNo: "",
+          mobileNo: "",
+          email: "",
+          status: "",
+          policyDate: "",
+          expiryDate: "",
+        });
+      } else {
+        toast.error(data.message);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Real Error:", error);
+      throw new Error("Request failed", { cause: error });
+    } finally {
+      setFormLoading(false);
+      setActiveTab("table");
+    }
+
+    // onSubmit(submissionData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +115,7 @@ const InsuranceForm: React.FC<InsuranceFormProps> = ({ onSubmit }) => {
             name="regNo"
             value={formData.regNo}
             onChange={handleChange}
-            placeholder="AB-12-CD-3456"
+            placeholder="JH02AB1234"
           />
         </div>
         <div className="form-group">
@@ -114,10 +153,11 @@ const InsuranceForm: React.FC<InsuranceFormProps> = ({ onSubmit }) => {
         </div>
         <div className="full-width">
           <button type="submit" className="btn-submit">
-            Save Insurance Record
+            {formLoading ? "Saving..." : "Save Insurance Record"}
           </button>
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 };
