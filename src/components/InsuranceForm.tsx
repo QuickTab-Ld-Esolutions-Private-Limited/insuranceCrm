@@ -44,7 +44,7 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
     try {
       setFormLoading(true);
       const response = await fetch(
-        "http://localhost/insuranceCrm-backend/submit/insurance-form",
+        "https://insurancecrm.quicktabhub.com/submit/insurance-form",
         {
           method: "POST",
           body: JSON.stringify(submissionData),
@@ -58,24 +58,31 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
 
       console.log("Response Data:", data);
 
-      if (data.success) {
-        toast.success(data.message);
-
-        // Reset form
-        setFormData({
-          id: "",
-          customerName: "",
-          regNo: "",
-          policyNo: "",
-          mobileNo: "",
-          email: "",
-          status: "",
-          policyDate: "",
-          expiryDate: "",
-        });
-      } else {
+      if (!data.success) {
         toast.error(data.message);
+        return;
       }
+
+      toast.success(data.message);
+
+      // Reset form
+      setFormData({
+        id: "",
+        customerName: "",
+        regNo: "",
+        policyNo: "",
+        mobileNo: "",
+        email: "",
+        status: "",
+        policyDate: "",
+        expiryDate: "",
+      });
+
+      setFormLoading(false);
+
+      setTimeout(() => {
+        setActiveTab("table");
+      }, 2000);
 
       return data;
     } catch (error) {
@@ -83,10 +90,7 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
       throw new Error("Request failed", { cause: error });
     } finally {
       setFormLoading(false);
-      setActiveTab("table");
     }
-
-    // onSubmit(submissionData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

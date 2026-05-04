@@ -35,7 +35,7 @@ const InsuranceTable = () => {
     try {
       setFormLoading(true);
       const response = await fetch(
-        "http://localhost/insuranceCrm-backend/api/insurance/form-data",
+        "https://insurancecrm.quicktabhub.com/api/insurance/form-data",
         {
           method: "GET",
           headers: {
@@ -46,7 +46,14 @@ const InsuranceTable = () => {
 
       const data = await response.json();
 
+      if (!data.success) {
+        toast.error(data.message);
+        return;
+      }
+
       setResponseData(data?.data);
+
+      setFormLoading(false);
 
       console.log("Response Data:", data?.data);
 
@@ -62,7 +69,7 @@ const InsuranceTable = () => {
   const handleDeleteEntry = async (record: IInsuranceRecord) => {
     try {
       const response = await fetch(
-        "http://localhost/insuranceCrm-backend/delete/insurance-form",
+        "https://insurancecrm.quicktabhub.com/delete/insurance-form",
         {
           method: "DELETE",
           body: JSON.stringify({
@@ -79,12 +86,15 @@ const InsuranceTable = () => {
 
       console.log("Response Data:", data);
 
-      if (data.success) {
-        toast.success(data.message);
-        handleFetchData();
-      } else {
+      if (!data.success) {
         toast.error(data.message);
+        return;
       }
+
+      toast.success(data.message);
+
+      // Update data
+      handleFetchData();
 
       return data;
     } catch (error) {
@@ -96,7 +106,7 @@ const InsuranceTable = () => {
   const handleUpdateRecord = async (updatedRecord: IUpdateInsuranceRecord) => {
     try {
       const response = await fetch(
-        "http://localhost/insuranceCrm-backend/update/insurance-form",
+        "https://insurancecrm.quicktabhub.com/update/insurance-form",
         {
           method: "PATCH",
           body: JSON.stringify(updatedRecord),
@@ -108,6 +118,11 @@ const InsuranceTable = () => {
 
       const data = await response.json();
 
+      if (!data.success) {
+        toast.error(data.message);
+        return;
+      }
+
       console.log("Response Data:", data);
 
       // update modal data
@@ -115,12 +130,9 @@ const InsuranceTable = () => {
         prev ? { ...prev, ...updatedRecord } : prev,
       );
 
-      if (data.success) {
-        toast.success(data.message);
-        handleFetchData();
-      } else {
-        toast.error(data.message);
-      }
+      toast.success(data.message);
+
+      handleFetchData();
 
       return data;
     } catch (error) {
@@ -280,29 +292,29 @@ const InsuranceTable = () => {
                 </td>
               </tr>
             )}
-            {paginatedRecords.length > 0 ? (
-              paginatedRecords.map((record) => (
-                <tr key={record.id} onClick={() => setSelectedRecord(record)}>
-                  <td>{record.customerName}</td>
-                  <td>{record.policyNo}</td>
-                  <td>{record.regNo}</td>
-                  <td>{record.mobileNo}</td>
-                  <td>{record.policyDate}</td>
-                  <td>{record.expiryDate}</td>
-                  <td>{record.status}</td>
-                  <td>{record.createdAt}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={5}
-                  style={{ textAlign: "center", padding: "2rem" }}
-                >
-                  No records found.
-                </td>
-              </tr>
-            )}
+            {paginatedRecords.length > 0
+              ? paginatedRecords.map((record) => (
+                  <tr key={record.id} onClick={() => setSelectedRecord(record)}>
+                    <td>{record.customerName}</td>
+                    <td>{record.policyNo}</td>
+                    <td>{record.regNo}</td>
+                    <td>{record.mobileNo}</td>
+                    <td>{record.policyDate}</td>
+                    <td>{record.expiryDate}</td>
+                    <td>{record.status}</td>
+                    <td>{record.createdAt}</td>
+                  </tr>
+                ))
+              : !formLoading && (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      style={{ textAlign: "center", padding: "2rem" }}
+                    >
+                      No records found.
+                    </td>
+                  </tr>
+                )}
           </tbody>
         </table>
       </div>
