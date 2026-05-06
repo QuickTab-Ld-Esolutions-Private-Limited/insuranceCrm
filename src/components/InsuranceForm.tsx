@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 /** styles */
 import "./InsuranceForm.scss";
@@ -31,7 +31,7 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
     const submissionData = {
       ...formData,
       id: crypto.randomUUID(),
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       status: "active",
       policyDate: formatDate(new Date()),
       expiryDate: formatDate(
@@ -161,7 +161,6 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
           </button>
         </div>
       </form>
-      <ToastContainer />
     </div>
   );
 };

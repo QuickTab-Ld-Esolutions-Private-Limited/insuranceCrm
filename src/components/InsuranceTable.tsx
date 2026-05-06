@@ -32,6 +32,8 @@ const InsuranceTable = () => {
   const [responseData, setResponseData] = useState<IInsuranceRecord[]>([]);
 
   const handleFetchData = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+
     try {
       setFormLoading(true);
       const response = await fetch(
@@ -40,6 +42,7 @@ const InsuranceTable = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
@@ -293,18 +296,28 @@ const InsuranceTable = () => {
               </tr>
             )}
             {paginatedRecords.length > 0
-              ? paginatedRecords.map((record) => (
-                  <tr key={record.id} onClick={() => setSelectedRecord(record)}>
-                    <td>{record.customerName}</td>
-                    <td>{record.policyNo}</td>
-                    <td>{record.regNo}</td>
-                    <td>{record.mobileNo}</td>
-                    <td>{record.policyDate}</td>
-                    <td>{record.expiryDate}</td>
-                    <td>{record.status}</td>
-                    <td>{record.createdAt}</td>
-                  </tr>
-                ))
+              ? paginatedRecords.map(
+                  (record) => (
+                    console.log(record.createdAt),
+                    (
+                      <tr
+                        key={record.id}
+                        onClick={() => setSelectedRecord(record)}
+                      >
+                        <td>{record.customerName}</td>
+                        <td>{record.policyNo}</td>
+                        <td>{record.regNo}</td>
+                        <td>{record.mobileNo}</td>
+                        <td>{record.policyDate}</td>
+                        <td>{record.expiryDate}</td>
+                        <td>{record.status}</td>
+                        <td>
+                          {new Date(record.createdAt).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    )
+                  ),
+                )
               : !formLoading && (
                   <tr>
                     <td

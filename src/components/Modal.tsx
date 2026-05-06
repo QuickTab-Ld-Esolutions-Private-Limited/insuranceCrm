@@ -86,6 +86,18 @@ const Modal: React.FC<ModalProps> = ({
     }
   };
 
+  // Date Time Options
+  const options: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    timeZone: "Asia/Kolkata",
+    hour12: true,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -152,7 +164,9 @@ const Modal: React.FC<ModalProps> = ({
             </div>
             <div className="detail-row">
               <span className="label">Record Created On</span>
-              <span className="value">{record.createdAt.toLocaleString()}</span>
+              <span className="value">
+                {new Date(record.createdAt).toLocaleString("en-US", options)}
+              </span>
             </div>
             <div className="del_btn_txt" onClick={handleDeleteEntry}>
               {loading ? "Deleting Entry..." : "Delete Entry"}
