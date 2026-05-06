@@ -42,28 +42,11 @@
     }
   }
 
+  .btn-submit {
+    width: 100%;
+  }
+
   .full-width {
     grid-column: 1 / -1;
-  }
-}
-
-.btn-submit {
-  margin-top: 2rem;
-  background-color: var(--primary);
-  color: white;
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: var(--primary-hover);
-  }
-
-  @media screen and (max-width: 768px) {
-    margin-top: 0px;
   }
 }
