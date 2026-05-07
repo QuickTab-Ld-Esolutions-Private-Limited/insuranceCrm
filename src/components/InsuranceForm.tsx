@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 /** styles */
 import "./InsuranceForm.scss";
+import useAuth from "../hook/useAuth";
 
 interface IInsuranceForm {
   setActiveTab: (tab: "form" | "table") => void;
@@ -22,8 +23,15 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
   });
   const [formLoading, setFormLoading] = useState(false);
 
+  // custom hooks
+  const { accessToken, checkAuth, refreshAccessToken } = useAuth();
+
   // Format Date
   const formatDate = (date: Date) => date.toISOString().split("T")[0];
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +47,7 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
       ),
     };
 
-    console.log(submissionData);
+    // console.log(submissionData);
 
     try {
       setFormLoading(true);
@@ -50,13 +58,22 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
           body: JSON.stringify(submissionData),
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
 
       const data = await response.json();
 
-      console.log("Response Data:", data);
+      // console.log("Response Data:", data);
+
+      if (!data.success && data.status === 401) {
+        const newTokenGenerated = await refreshAccessToken();
+
+        if (!newTokenGenerated) return;
+
+        toast.error("Error occurred during form submission, please try again");
+      }
 
       if (!data.success) {
         toast.error(data.message);
@@ -87,6 +104,7 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
       return data;
     } catch (error) {
       console.error("Real Error:", error);
+      toast.error("Something went wrong, please try again");
       throw new Error("Request failed", { cause: error });
     } finally {
       setFormLoading(false);

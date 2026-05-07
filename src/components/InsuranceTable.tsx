@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 /** components */
 import Modal from "./Modal";
@@ -15,6 +15,7 @@ import type {
   IInsuranceRecord,
   IUpdateInsuranceRecord,
 } from "../interface/crmInterface";
+import useAuth from "../hook/useAuth";
 
 const InsuranceTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,9 +32,9 @@ const InsuranceTable = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [responseData, setResponseData] = useState<IInsuranceRecord[]>([]);
 
-  const handleFetchData = async () => {
-    const accessToken = localStorage.getItem("accessToken");
+  const { accessToken, refreshAccessToken } = useAuth();
 
+  const handleFetchData = async () => {
     try {
       setFormLoading(true);
       const response = await fetch(
@@ -49,6 +50,14 @@ const InsuranceTable = () => {
 
       const data = await response.json();
 
+      // console.log("Response Data:", data);
+
+      if (!data.success && data.status === 401) {
+        const newTokenGenerated = await refreshAccessToken();
+
+        if (!newTokenGenerated) return;
+      }
+
       if (!data.success) {
         toast.error(data.message);
         return;
@@ -58,14 +67,11 @@ const InsuranceTable = () => {
 
       setFormLoading(false);
 
-      console.log("Response Data:", data?.data);
-
       return data;
     } catch (error) {
       console.error("Real Error:", error);
+      toast.error("Something went wrong, please try again");
       throw new Error("Request failed", { cause: error });
-    } finally {
-      setFormLoading(false);
     }
   };
 
@@ -81,6 +87,7 @@ const InsuranceTable = () => {
           }),
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
@@ -102,6 +109,7 @@ const InsuranceTable = () => {
       return data;
     } catch (error) {
       console.error("Real Error:", error);
+      toast.error("Something went wrong, please try again");
       throw new Error("Request failed", { cause: error });
     }
   };
@@ -115,6 +123,7 @@ const InsuranceTable = () => {
           body: JSON.stringify(updatedRecord),
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
@@ -140,6 +149,7 @@ const InsuranceTable = () => {
       return data;
     } catch (error) {
       console.error("Real Error:", error);
+      toast.error("Something went wrong, please try again");
       throw new Error("Request failed", { cause: error });
     }
   };
@@ -296,28 +306,19 @@ const InsuranceTable = () => {
               </tr>
             )}
             {paginatedRecords.length > 0
-              ? paginatedRecords.map(
-                  (record) => (
-                    console.log(record.createdAt),
-                    (
-                      <tr
-                        key={record.id}
-                        onClick={() => setSelectedRecord(record)}
-                      >
-                        <td>{record.customerName}</td>
-                        <td>{record.policyNo}</td>
-                        <td>{record.regNo}</td>
-                        <td>{record.mobileNo}</td>
-                        <td>{record.policyDate}</td>
-                        <td>{record.expiryDate}</td>
-                        <td>{record.status}</td>
-                        <td>
-                          {new Date(record.createdAt).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    )
-                  ),
-                )
+              ? paginatedRecords.map((record) => (
+                  // console.log(record.createdAt),
+                  <tr key={record.id} onClick={() => setSelectedRecord(record)}>
+                    <td>{record.customerName}</td>
+                    <td>{record.policyNo}</td>
+                    <td>{record.regNo}</td>
+                    <td>{record.mobileNo}</td>
+                    <td>{record.policyDate}</td>
+                    <td>{record.expiryDate}</td>
+                    <td>{record.status}</td>
+                    <td>{new Date(record.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))
               : !formLoading && (
                   <tr>
                     <td
@@ -360,7 +361,6 @@ const InsuranceTable = () => {
           onUpdate={handleUpdateRecord}
         />
       )}
-      <ToastContainer />
     </div>
   );
 };
