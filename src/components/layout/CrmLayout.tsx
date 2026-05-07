@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 /** components */
 import Sidebar from "../Sidebar";
@@ -14,12 +14,16 @@ import useAuth from "../../hook/useAuth";
 import "./CrmLayout.scss";
 
 const CRMLayout = () => {
-  useAuth();
+  const { accessToken, refreshToken, checkAuth } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"form" | "table">("form");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const handelLogout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,14 +31,12 @@ const CRMLayout = () => {
     setLoading(true);
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
-
       const res = await fetch(
         "https://insurancecrm.quicktabhub.com/auth/logout",
         {
           method: "POST",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ refreshToken }),
@@ -92,8 +94,6 @@ const CRMLayout = () => {
         ) : (
           <InsuranceTable />
         )}
-
-        <ToastContainer />
       </main>
     </div>
   );

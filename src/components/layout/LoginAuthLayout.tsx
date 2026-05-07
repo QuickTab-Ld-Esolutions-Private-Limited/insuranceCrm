@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 /** styles */
 import "./LoginAuthLayout.scss";
@@ -24,9 +24,18 @@ const LoginPage = () => {
       const storedAccess = localStorage.getItem("accessToken");
       const storedRefresh = localStorage.getItem("refreshToken");
 
-      return storedAccess === accessToken && storedRefresh === refreshToken;
+      const isStored =
+        storedAccess === accessToken && storedRefresh === refreshToken;
+
+      if (!isStored) {
+        toast.error("Problem Saving Access Data, please try again");
+        return false;
+      }
+
+      return isStored;
     } catch (error) {
       console.error("LocalStorage Error:", error);
+      toast.error("Something went wrong, please try again");
       return false;
     }
   };
@@ -51,7 +60,7 @@ const LoginPage = () => {
 
       const data = await res.json();
 
-      console.log("Response Data:", data);
+      // console.log("Response Data:", data);
 
       if (!data.success) {
         toast.error(data.message);
@@ -71,6 +80,7 @@ const LoginPage = () => {
       }, 1000);
     } catch (error) {
       console.error("Real Error:", error);
+      toast.error("Something went wrong, please try again");
       throw new Error("Request failed", { cause: error });
     } finally {
       setLoading(false);
@@ -124,8 +134,6 @@ const LoginPage = () => {
           </button>
         </form>
       </div>
-
-      <ToastContainer />
     </div>
   );
 };
