@@ -6,6 +6,9 @@ import "./Modal.scss";
 /** icons */
 import { IoClose } from "react-icons/io5";
 
+/** utils */
+import { formatDateTime } from "../utils/common";
+
 /** interfaces */
 import type {
   IInsuranceRecord,
@@ -86,17 +89,17 @@ const Modal: React.FC<ModalProps> = ({
     }
   };
 
-  // Date Time Options
-  const options: Intl.DateTimeFormatOptions = {
-    day: "numeric",
-    month: "numeric",
-    year: "numeric",
-    timeZone: "Asia/Kolkata",
-    hour12: true,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  };
+  // // Date Time Options
+  // const options: Intl.DateTimeFormatOptions = {
+  //   day: "numeric",
+  //   month: "numeric",
+  //   year: "numeric",
+  //   timeZone: "Asia/Kolkata",
+  //   hour12: true,
+  //   hour: "2-digit",
+  //   minute: "2-digit",
+  //   second: "2-digit",
+  // };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -164,9 +167,7 @@ const Modal: React.FC<ModalProps> = ({
             </div>
             <div className="detail-row">
               <span className="label">Record Created On</span>
-              <span className="value">
-                {new Date(record.createdAt).toLocaleString("en-US", options)}
-              </span>
+              <span className="value">{formatDateTime(record.createdAt)}</span>
             </div>
             <div className="del_btn_txt" onClick={handleDeleteEntry}>
               {loading ? "Deleting Entry..." : "Delete Entry"}

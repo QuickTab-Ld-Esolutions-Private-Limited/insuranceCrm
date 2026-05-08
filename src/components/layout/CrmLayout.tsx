@@ -14,9 +14,19 @@ import useAuth from "../../hook/useAuth";
 import "./CrmLayout.scss";
 
 const CRMLayout = () => {
-  const { accessToken, refreshToken, checkAuth } = useAuth();
+  const {
+    logoutUser,
+    accessToken,
+    refreshToken,
+    checkAuth,
+    refreshAccessToken,
+  } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<"form" | "table">("form");
+  const [activeTab, setActiveTab] = useState<"form" | "table">(() => {
+    const savedTab = localStorage.getItem("activeTab");
+
+    return savedTab === "form" || savedTab === "table" ? savedTab : "form";
+  });
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -46,6 +56,23 @@ const CRMLayout = () => {
       const data = await res.json();
 
       console.log("Response Data:", data);
+
+      if (!data.success && data.status === 401) {
+        const newTokenGenerated = await refreshAccessToken(
+          "https://insurancecrm.quicktabhub.com/auth/logout",
+          {
+            method: "POST",
+            body: JSON.stringify({ refreshToken }),
+          },
+        );
+
+        if (!newTokenGenerated) {
+          logoutUser();
+          return null;
+        }
+
+        return null;
+      }
 
       if (!data.success) {
         toast.error(data.message);
