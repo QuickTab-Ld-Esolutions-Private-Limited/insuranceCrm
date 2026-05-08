@@ -41,7 +41,6 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
     const submissionData = {
       ...formData,
       id: crypto.randomUUID(),
-      createdAt: now.toISOString(),
       status: "active",
       policyDate: now.toISOString().split("T")[0],
       expiryDate: expiry.toISOString().split("T")[0],

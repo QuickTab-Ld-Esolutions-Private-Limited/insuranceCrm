@@ -9,7 +9,7 @@ export const formatDate = (date: string) => {
 };
 
 export const formatDateTime = (date: string) => {
-  return new Date(date)
+  return new Date(date + "Z")
     .toLocaleString("en-GB", {
       timeZone: "Asia/Kolkata",
       day: "2-digit",
@@ -21,5 +21,6 @@ export const formatDateTime = (date: string) => {
       hour12: true,
     })
     .replace(/\//g, "-")
+    .replace(",", "")
     .toUpperCase();
 };

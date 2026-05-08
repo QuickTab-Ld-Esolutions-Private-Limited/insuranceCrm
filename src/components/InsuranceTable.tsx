@@ -64,7 +64,7 @@ const InsuranceTable = () => {
         );
 
         if (!newTokenGenerated) {
-          logoutUser();
+          // logoutUser();
           return null;
         }
 
@@ -378,7 +378,17 @@ const InsuranceTable = () => {
                     <td>{record.mobileNo}</td>
                     <td>{formatDate(record.policyDate)}</td>
                     <td>{formatDate(record.expiryDate)}</td>
-                    <td>{record.status}</td>
+                    <td>
+                      <span
+                        className={
+                          record.status === "active"
+                            ? "activeStatus"
+                            : "expiredStatus"
+                        }
+                      >
+                        {record.status}
+                      </span>
+                    </td>
                     <td>
                       {formatDate(
                         new Date(record.createdAt).toLocaleDateString(),
