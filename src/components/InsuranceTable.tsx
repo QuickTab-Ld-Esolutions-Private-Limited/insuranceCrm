@@ -10,6 +10,9 @@ import "./InsuranceTable.scss";
 /** icons */
 import { FaSearch } from "react-icons/fa";
 
+/** utils */
+import { formatDate } from "../utils/common";
+
 /** interfaces */
 import type {
   IInsuranceRecord,
@@ -32,7 +35,7 @@ const InsuranceTable = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [responseData, setResponseData] = useState<IInsuranceRecord[]>([]);
 
-  const { accessToken, refreshAccessToken } = useAuth();
+  const { logoutUser, accessToken, refreshAccessToken } = useAuth();
 
   const handleFetchData = async () => {
     try {
@@ -53,9 +56,21 @@ const InsuranceTable = () => {
       // console.log("Response Data:", data);
 
       if (!data.success && data.status === 401) {
-        const newTokenGenerated = await refreshAccessToken();
+        const newTokenGenerated = await refreshAccessToken(
+          "https://insurancecrm.quicktabhub.com/api/insurance/form-data",
+          {
+            method: "GET",
+          },
+        );
 
-        if (!newTokenGenerated) return;
+        if (!newTokenGenerated) {
+          logoutUser();
+          return null;
+        }
+
+        setResponseData(newTokenGenerated?.data);
+        setFormLoading(false);
+        return null;
       }
 
       if (!data.success) {
@@ -94,6 +109,29 @@ const InsuranceTable = () => {
 
       const data = await response.json();
 
+      if (!data.success && data.status === 401) {
+        const newTokenGenerated = await refreshAccessToken(
+          "https://insurancecrm.quicktabhub.com/delete/insurance-form",
+          {
+            method: "DELETE",
+            body: JSON.stringify({
+              id: record.id,
+              customerName: record.customerName,
+            }),
+          },
+        );
+
+        if (!newTokenGenerated) {
+          logoutUser();
+          return null;
+        }
+
+        // Update data
+        handleFetchData();
+
+        return newTokenGenerated;
+      }
+
       console.log("Response Data:", data);
 
       if (!data.success) {
@@ -129,6 +167,31 @@ const InsuranceTable = () => {
       );
 
       const data = await response.json();
+
+      if (!data.success && data.status === 401) {
+        const newTokenGenerated = await refreshAccessToken(
+          "https://insurancecrm.quicktabhub.com/update/insurance-form",
+          {
+            method: "PATCH",
+            body: JSON.stringify(updatedRecord),
+          },
+        );
+
+        if (!newTokenGenerated) {
+          logoutUser();
+          return null;
+        }
+
+        // update modal data
+        setSelectedRecord((prev) =>
+          prev ? { ...prev, ...updatedRecord } : prev,
+        );
+
+        // Update data
+        handleFetchData();
+
+        return newTokenGenerated;
+      }
 
       if (!data.success) {
         toast.error(data.message);
@@ -313,10 +376,14 @@ const InsuranceTable = () => {
                     <td>{record.policyNo}</td>
                     <td>{record.regNo}</td>
                     <td>{record.mobileNo}</td>
-                    <td>{record.policyDate}</td>
-                    <td>{record.expiryDate}</td>
+                    <td>{formatDate(record.policyDate)}</td>
+                    <td>{formatDate(record.expiryDate)}</td>
                     <td>{record.status}</td>
-                    <td>{new Date(record.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      {formatDate(
+                        new Date(record.createdAt).toLocaleDateString(),
+                      )}
+                    </td>
                   </tr>
                 ))
               : !formLoading && (

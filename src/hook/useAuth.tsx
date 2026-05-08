@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import type { IApiResponse } from "../interface/crmInterface";
 
 const useAuth = () => {
   const navigate = useNavigate();
@@ -19,14 +20,22 @@ const useAuth = () => {
   const checkAuth = () => {
     if (!refreshToken) {
       logoutUser();
-      return null;
     }
+
+    return null;
   };
 
-  const refreshAccessToken = async (): Promise<string | null> => {
+  const refreshAccessToken = async (
+    url: string,
+    options: RequestInit = {},
+  ): Promise<IApiResponse | null> => {
+    const refreshToken = localStorage.getItem("refreshToken");
+
+    // no refresh token
     checkAuth();
 
     try {
+      // generate new access token
       const response = await fetch(
         "https://insurancecrm.quicktabhub.com/token/refresh-token",
         {
@@ -40,16 +49,28 @@ const useAuth = () => {
 
       const data = await response.json();
 
+      // refresh failed
       if (!data.success) {
         logoutUser();
         return null;
       }
 
-      const accessToken = data?.data?.accessToken;
+      // new token
+      const newAccessToken = data?.data?.accessToken;
 
-      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("accessToken", newAccessToken);
 
-      return accessToken;
+      // retry original request
+      const retryResponse = await fetch(url, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${newAccessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return await retryResponse.json();
     } catch (error) {
       console.error(error);
 
@@ -62,6 +83,7 @@ const useAuth = () => {
   return {
     accessToken,
     refreshToken,
+    logoutUser,
     refreshAccessToken,
     checkAuth,
   };

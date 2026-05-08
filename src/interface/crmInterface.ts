@@ -14,9 +14,11 @@ export interface IInsuranceRecord {
 
 export interface IUpdateInsuranceRecord extends Partial<IInsuranceRecord> {
   id: string;
-  mobileNo?: string;
-  email?: string;
-  status?: string;
-  policyDate?: string;
-  expiryDate?: string;
+}
+
+export interface IApiResponse {
+  success: boolean;
+  status: number;
+  message: string;
+  data: IInsuranceRecord[];
 }

@@ -27,6 +27,8 @@ const Sidebar: React.FC<ISidebar> = ({ activeTab, setActiveTab }) => {
   const handleTabClick = (tab: "form" | "table") => {
     setActiveTab(tab);
     setIsOpen(false);
+
+    localStorage.setItem("activeTab", tab);
   };
 
   return (

@@ -24,10 +24,7 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
   const [formLoading, setFormLoading] = useState(false);
 
   // custom hooks
-  const { accessToken, checkAuth, refreshAccessToken } = useAuth();
-
-  // Format Date
-  const formatDate = (date: Date) => date.toISOString().split("T")[0];
+  const { logoutUser, accessToken, checkAuth, refreshAccessToken } = useAuth();
 
   useEffect(() => {
     checkAuth();
@@ -36,15 +33,18 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const now = new Date();
+
+    const expiry = new Date(now);
+    expiry.setFullYear(expiry.getFullYear() + 1);
+
     const submissionData = {
       ...formData,
       id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
+      createdAt: now.toISOString(),
       status: "active",
-      policyDate: formatDate(new Date()),
-      expiryDate: formatDate(
-        new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-      ),
+      policyDate: now.toISOString().split("T")[0],
+      expiryDate: expiry.toISOString().split("T")[0],
     };
 
     // console.log(submissionData);
@@ -68,11 +68,20 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
       // console.log("Response Data:", data);
 
       if (!data.success && data.status === 401) {
-        const newTokenGenerated = await refreshAccessToken();
+        const newTokenGenerated = await refreshAccessToken(
+          "https://insurancecrm.quicktabhub.com/submit/insurance-form",
+          {
+            method: "POST",
+            body: JSON.stringify(submissionData),
+          },
+        );
 
-        if (!newTokenGenerated) return;
+        if (!newTokenGenerated) {
+          logoutUser();
+          return null;
+        }
 
-        toast.error("Error occurred during form submission, please try again");
+        return null;
       }
 
       if (!data.success) {
@@ -99,7 +108,7 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
 
       setTimeout(() => {
         setActiveTab("table");
-      }, 2000);
+      }, 1000);
 
       return data;
     } catch (error) {
