@@ -42,8 +42,9 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
       ...formData,
       id: crypto.randomUUID(),
       status: "active",
-      policyDate: now.toISOString().split("T")[0],
-      expiryDate: expiry.toISOString().split("T")[0],
+      policyDate: now.toISOString(),
+      expiryDate: expiry.toISOString(),
+      createdAt: now.toISOString(),
     };
 
     // console.log(submissionData);
@@ -105,9 +106,7 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
 
       setFormLoading(false);
 
-      setTimeout(() => {
-        setActiveTab("table");
-      }, 1000);
+      setActiveTab("table");
 
       return data;
     } catch (error) {

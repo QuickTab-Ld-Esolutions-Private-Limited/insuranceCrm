@@ -73,11 +73,9 @@ const LoginPage = () => {
 
       const saveData = saveLocalStorage(accessToken, refreshToken);
 
-      setTimeout(() => {
-        if (saveData) {
-          navigate("/dashboard", { replace: true });
-        }
-      }, 1000);
+      if (saveData) {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (error) {
       console.error("Real Error:", error);
       toast.error("Something went wrong, please try again");

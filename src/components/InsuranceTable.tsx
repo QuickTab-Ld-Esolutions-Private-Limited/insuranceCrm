@@ -11,7 +11,7 @@ import "./InsuranceTable.scss";
 import { FaSearch } from "react-icons/fa";
 
 /** utils */
-import { formatDate } from "../utils/common";
+import { formatDateUTC } from "../utils/common";
 
 /** interfaces */
 import type {
@@ -376,8 +376,8 @@ const InsuranceTable = () => {
                     <td>{record.policyNo}</td>
                     <td>{record.regNo}</td>
                     <td>{record.mobileNo}</td>
-                    <td>{formatDate(record.policyDate)}</td>
-                    <td>{formatDate(record.expiryDate)}</td>
+                    <td>{formatDateUTC(record.policyDate, "date")}</td>
+                    <td>{formatDateUTC(record.expiryDate, "date")}</td>
                     <td>
                       <span
                         className={
@@ -389,11 +389,7 @@ const InsuranceTable = () => {
                         {record.status}
                       </span>
                     </td>
-                    <td>
-                      {formatDate(
-                        new Date(record.createdAt).toLocaleDateString(),
-                      )}
-                    </td>
+                    <td>{formatDateUTC(record.createdAt, "date")}</td>
                   </tr>
                 ))
               : !formLoading && (

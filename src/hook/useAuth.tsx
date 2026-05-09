@@ -14,15 +14,16 @@ const useAuth = () => {
 
     toast.error("Session expired, please login again");
 
-    setTimeout(() => navigate("/", { replace: true }), 1000);
+    navigate("/", { replace: true });
   };
 
   const checkAuth = () => {
     if (!refreshToken) {
       logoutUser();
+      return true;
     }
 
-    return null;
+    return false;
   };
 
   const refreshAccessToken = async (
@@ -32,7 +33,11 @@ const useAuth = () => {
     const refreshToken = localStorage.getItem("refreshToken");
 
     // no refresh token
-    checkAuth();
+    const isLoggedOut = checkAuth();
+
+    if (isLoggedOut) {
+      return null;
+    }
 
     try {
       // generate new access token
