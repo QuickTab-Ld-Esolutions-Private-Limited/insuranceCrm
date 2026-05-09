@@ -11,7 +11,7 @@ import "./InsuranceTable.scss";
 import { FaSearch } from "react-icons/fa";
 
 /** utils */
-import { formatDate } from "../utils/common";
+import { formatDateUTC } from "../utils/common";
 
 /** interfaces */
 import type {
@@ -64,7 +64,7 @@ const InsuranceTable = () => {
         );
 
         if (!newTokenGenerated) {
-          logoutUser();
+          // logoutUser();
           return null;
         }
 
@@ -376,14 +376,20 @@ const InsuranceTable = () => {
                     <td>{record.policyNo}</td>
                     <td>{record.regNo}</td>
                     <td>{record.mobileNo}</td>
-                    <td>{formatDate(record.policyDate)}</td>
-                    <td>{formatDate(record.expiryDate)}</td>
-                    <td>{record.status}</td>
+                    <td>{formatDateUTC(record.policyDate, "date")}</td>
+                    <td>{formatDateUTC(record.expiryDate, "date")}</td>
                     <td>
-                      {formatDate(
-                        new Date(record.createdAt).toLocaleDateString(),
-                      )}
+                      <span
+                        className={
+                          record.status === "active"
+                            ? "activeStatus"
+                            : "expiredStatus"
+                        }
+                      >
+                        {record.status}
+                      </span>
                     </td>
+                    <td>{formatDateUTC(record.createdAt, "date")}</td>
                   </tr>
                 ))
               : !formLoading && (

@@ -7,7 +7,7 @@ import "./Modal.scss";
 import { IoClose } from "react-icons/io5";
 
 /** utils */
-import { formatDateTime } from "../utils/common";
+import { formatDateUTC } from "../utils/common";
 
 /** interfaces */
 import type {
@@ -155,7 +155,11 @@ const Modal: React.FC<ModalProps> = ({
             </div>
             <div className="detail-row">
               <span className="label">Status</span>
-              <span className="value">{record.status}</span>
+              <span
+                className={`value ${record.status === "active" ? "activeStatus" : "expiredStatus"}`}
+              >
+                {record.status}
+              </span>
             </div>
             <div className="detail-row">
               <span className="label">Policy Date</span>
@@ -167,7 +171,7 @@ const Modal: React.FC<ModalProps> = ({
             </div>
             <div className="detail-row">
               <span className="label">Record Created On</span>
-              <span className="value">{formatDateTime(record.createdAt)}</span>
+              <span className="value">{formatDateUTC(record.createdAt)}</span>
             </div>
             <div className="del_btn_txt" onClick={handleDeleteEntry}>
               {loading ? "Deleting Entry..." : "Delete Entry"}

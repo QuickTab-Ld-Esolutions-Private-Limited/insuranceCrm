@@ -82,6 +82,28 @@
 .table-container {
   overflow-x: auto;
 
+  .activeStatus,
+  .expiredStatus {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: capitalize;
+  }
+
+  .activeStatus {
+    background: #dcffdc;
+    border: 2px solid green;
+  }
+
+  .expiredStatus {
+    background: #fedcdc;
+    border: 2px solid red;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;

@@ -84,9 +84,7 @@ const CRMLayout = () => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
 
-      setTimeout(() => {
-        navigate("/", { replace: true });
-      }, 1000);
+      navigate("/", { replace: true });
     } catch (error) {
       console.error("Real Error:", error);
       throw new Error("Request failed", { cause: error });
