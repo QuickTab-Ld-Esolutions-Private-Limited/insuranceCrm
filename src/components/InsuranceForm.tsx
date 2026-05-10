@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 /** styles */
 import "./InsuranceForm.scss";
+import useAuth from "../hook/useAuth";
 
 interface IInsuranceForm {
   setActiveTab: (tab: "form" | "table") => void;
@@ -22,24 +23,31 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
   });
   const [formLoading, setFormLoading] = useState(false);
 
-  // Format Date
-  const formatDate = (date: Date) => date.toISOString().split("T")[0];
+  // custom hooks
+  const { logoutUser, accessToken, checkAuth, refreshAccessToken } = useAuth();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const now = new Date();
+
+    const expiry = new Date(now);
+    expiry.setFullYear(expiry.getFullYear() + 1);
+
     const submissionData = {
       ...formData,
       id: crypto.randomUUID(),
-      createdAt: new Date(),
       status: "active",
-      policyDate: formatDate(new Date()),
-      expiryDate: formatDate(
-        new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-      ),
+      policyDate: now.toISOString(),
+      expiryDate: expiry.toISOString(),
+      createdAt: now.toISOString(),
     };
 
-    console.log(submissionData);
+    // console.log(submissionData);
 
     try {
       setFormLoading(true);
@@ -50,13 +58,31 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
           body: JSON.stringify(submissionData),
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
 
       const data = await response.json();
 
-      console.log("Response Data:", data);
+      // console.log("Response Data:", data);
+
+      if (!data.success && data.status === 401) {
+        const newTokenGenerated = await refreshAccessToken(
+          "https://insurancecrm.quicktabhub.com/submit/insurance-form",
+          {
+            method: "POST",
+            body: JSON.stringify(submissionData),
+          },
+        );
+
+        if (!newTokenGenerated) {
+          logoutUser();
+          return null;
+        }
+
+        return null;
+      }
 
       if (!data.success) {
         toast.error(data.message);
@@ -80,13 +106,12 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
 
       setFormLoading(false);
 
-      setTimeout(() => {
-        setActiveTab("table");
-      }, 2000);
+      setActiveTab("table");
 
       return data;
     } catch (error) {
       console.error("Real Error:", error);
+      toast.error("Something went wrong, please try again");
       throw new Error("Request failed", { cause: error });
     } finally {
       setFormLoading(false);
@@ -161,7 +186,6 @@ const InsuranceForm: React.FC<IInsuranceForm> = ({ setActiveTab }) => {
           </button>
         </div>
       </form>
-      <ToastContainer />
     </div>
   );
 };

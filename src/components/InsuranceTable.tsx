@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 /** components */
 import Modal from "./Modal";
@@ -10,11 +10,15 @@ import "./InsuranceTable.scss";
 /** icons */
 import { FaSearch } from "react-icons/fa";
 
+/** utils */
+import { formatDateUTC } from "../utils/common";
+
 /** interfaces */
 import type {
   IInsuranceRecord,
   IUpdateInsuranceRecord,
 } from "../interface/crmInterface";
+import useAuth from "../hook/useAuth";
 
 const InsuranceTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,6 +35,8 @@ const InsuranceTable = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [responseData, setResponseData] = useState<IInsuranceRecord[]>([]);
 
+  const { logoutUser, accessToken, refreshAccessToken } = useAuth();
+
   const handleFetchData = async () => {
     try {
       setFormLoading(true);
@@ -40,11 +46,32 @@ const InsuranceTable = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
 
       const data = await response.json();
+
+      // console.log("Response Data:", data);
+
+      if (!data.success && data.status === 401) {
+        const newTokenGenerated = await refreshAccessToken(
+          "https://insurancecrm.quicktabhub.com/api/insurance/form-data",
+          {
+            method: "GET",
+          },
+        );
+
+        if (!newTokenGenerated) {
+          // logoutUser();
+          return null;
+        }
+
+        setResponseData(newTokenGenerated?.data);
+        setFormLoading(false);
+        return null;
+      }
 
       if (!data.success) {
         toast.error(data.message);
@@ -55,14 +82,11 @@ const InsuranceTable = () => {
 
       setFormLoading(false);
 
-      console.log("Response Data:", data?.data);
-
       return data;
     } catch (error) {
       console.error("Real Error:", error);
+      toast.error("Something went wrong, please try again");
       throw new Error("Request failed", { cause: error });
-    } finally {
-      setFormLoading(false);
     }
   };
 
@@ -78,11 +102,35 @@ const InsuranceTable = () => {
           }),
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
 
       const data = await response.json();
+
+      if (!data.success && data.status === 401) {
+        const newTokenGenerated = await refreshAccessToken(
+          "https://insurancecrm.quicktabhub.com/delete/insurance-form",
+          {
+            method: "DELETE",
+            body: JSON.stringify({
+              id: record.id,
+              customerName: record.customerName,
+            }),
+          },
+        );
+
+        if (!newTokenGenerated) {
+          logoutUser();
+          return null;
+        }
+
+        // Update data
+        handleFetchData();
+
+        return newTokenGenerated;
+      }
 
       console.log("Response Data:", data);
 
@@ -99,6 +147,7 @@ const InsuranceTable = () => {
       return data;
     } catch (error) {
       console.error("Real Error:", error);
+      toast.error("Something went wrong, please try again");
       throw new Error("Request failed", { cause: error });
     }
   };
@@ -112,11 +161,37 @@ const InsuranceTable = () => {
           body: JSON.stringify(updatedRecord),
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
         },
       );
 
       const data = await response.json();
+
+      if (!data.success && data.status === 401) {
+        const newTokenGenerated = await refreshAccessToken(
+          "https://insurancecrm.quicktabhub.com/update/insurance-form",
+          {
+            method: "PATCH",
+            body: JSON.stringify(updatedRecord),
+          },
+        );
+
+        if (!newTokenGenerated) {
+          logoutUser();
+          return null;
+        }
+
+        // update modal data
+        setSelectedRecord((prev) =>
+          prev ? { ...prev, ...updatedRecord } : prev,
+        );
+
+        // Update data
+        handleFetchData();
+
+        return newTokenGenerated;
+      }
 
       if (!data.success) {
         toast.error(data.message);
@@ -137,6 +212,7 @@ const InsuranceTable = () => {
       return data;
     } catch (error) {
       console.error("Real Error:", error);
+      toast.error("Something went wrong, please try again");
       throw new Error("Request failed", { cause: error });
     }
   };
@@ -294,15 +370,26 @@ const InsuranceTable = () => {
             )}
             {paginatedRecords.length > 0
               ? paginatedRecords.map((record) => (
+                  // console.log(record.createdAt),
                   <tr key={record.id} onClick={() => setSelectedRecord(record)}>
                     <td>{record.customerName}</td>
                     <td>{record.policyNo}</td>
                     <td>{record.regNo}</td>
                     <td>{record.mobileNo}</td>
-                    <td>{record.policyDate}</td>
-                    <td>{record.expiryDate}</td>
-                    <td>{record.status}</td>
-                    <td>{record.createdAt}</td>
+                    <td>{formatDateUTC(record.policyDate, "date")}</td>
+                    <td>{formatDateUTC(record.expiryDate, "date")}</td>
+                    <td>
+                      <span
+                        className={
+                          record.status === "active"
+                            ? "activeStatus"
+                            : "expiredStatus"
+                        }
+                      >
+                        {record.status}
+                      </span>
+                    </td>
+                    <td>{formatDateUTC(record.createdAt, "date")}</td>
                   </tr>
                 ))
               : !formLoading && (
@@ -347,7 +434,6 @@ const InsuranceTable = () => {
           onUpdate={handleUpdateRecord}
         />
       )}
-      <ToastContainer />
     </div>
   );
 };

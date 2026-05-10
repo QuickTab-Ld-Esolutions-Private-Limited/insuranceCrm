@@ -6,6 +6,9 @@ import "./Modal.scss";
 /** icons */
 import { IoClose } from "react-icons/io5";
 
+/** utils */
+import { formatDateUTC } from "../utils/common";
+
 /** interfaces */
 import type {
   IInsuranceRecord,
@@ -86,6 +89,18 @@ const Modal: React.FC<ModalProps> = ({
     }
   };
 
+  // // Date Time Options
+  // const options: Intl.DateTimeFormatOptions = {
+  //   day: "numeric",
+  //   month: "numeric",
+  //   year: "numeric",
+  //   timeZone: "Asia/Kolkata",
+  //   hour12: true,
+  //   hour: "2-digit",
+  //   minute: "2-digit",
+  //   second: "2-digit",
+  // };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -140,19 +155,27 @@ const Modal: React.FC<ModalProps> = ({
             </div>
             <div className="detail-row">
               <span className="label">Status</span>
-              <span className="value">{record.status}</span>
+              <span
+                className={`value ${record.status === "active" ? "activeStatus" : "expiredStatus"}`}
+              >
+                {record.status}
+              </span>
             </div>
             <div className="detail-row">
               <span className="label">Policy Date</span>
-              <span className="value">{record.policyDate}</span>
+              <span className="value">
+                {formatDateUTC(record.policyDate, "date")}
+              </span>
             </div>
             <div className="detail-row">
               <span className="label">Expiry Date</span>
-              <span className="value">{record.expiryDate}</span>
+              <span className="value">
+                {formatDateUTC(record.expiryDate, "date")}
+              </span>
             </div>
             <div className="detail-row">
               <span className="label">Record Created On</span>
-              <span className="value">{record.createdAt.toLocaleString()}</span>
+              <span className="value">{formatDateUTC(record.createdAt)}</span>
             </div>
             <div className="del_btn_txt" onClick={handleDeleteEntry}>
               {loading ? "Deleting Entry..." : "Delete Entry"}

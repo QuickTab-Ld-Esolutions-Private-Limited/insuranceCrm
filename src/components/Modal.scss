@@ -80,6 +80,11 @@
       display: flex;
       justify-content: space-between;
 
+      .activeStatus,
+      .expiredStatus {
+        text-transform: capitalize;
+      }
+
       span.label {
         color: var(--text-muted);
         font-weight: 500;
@@ -87,6 +92,14 @@
       span.value {
         font-weight: 600;
         color: var(--text-main);
+
+        &.activeStatus {
+          color: green;
+        }
+
+        &.expiredStatus {
+          color: red;
+        }
       }
     }
   }
