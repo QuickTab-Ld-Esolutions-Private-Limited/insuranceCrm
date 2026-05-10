@@ -163,11 +163,15 @@ const Modal: React.FC<ModalProps> = ({
             </div>
             <div className="detail-row">
               <span className="label">Policy Date</span>
-              <span className="value">{record.policyDate}</span>
+              <span className="value">
+                {formatDateUTC(record.policyDate, "date")}
+              </span>
             </div>
             <div className="detail-row">
               <span className="label">Expiry Date</span>
-              <span className="value">{record.expiryDate}</span>
+              <span className="value">
+                {formatDateUTC(record.expiryDate, "date")}
+              </span>
             </div>
             <div className="detail-row">
               <span className="label">Record Created On</span>
