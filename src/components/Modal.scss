@@ -9,13 +9,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1010;
 }
 
 .modal-content {
   background: var(--surface);
   border-radius: 12px;
-  width: 100%;
+  width: 90vw;
   max-width: 500px;
   padding: 2rem;
   position: relative;
@@ -23,7 +23,7 @@
 
   .close-btn {
     position: absolute;
-    top: 1.5rem;
+    top: 30px;
     right: 1.5rem;
     background: transparent;
     border: none;
@@ -32,6 +32,10 @@
     color: var(--text-muted);
     &:hover {
       color: var(--text-main);
+    }
+
+    @media screen and (max-width: 670px) {
+      top: 40px;
     }
   }
 
@@ -54,6 +58,14 @@
     display: flex;
     align-items: baseline;
     gap: 10px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+
+    @media screen and (max-width: 670px) {
+      flex-direction: column;
+      gap: 0px;
+    }
   }
 
   .head_wrapper span,
@@ -66,9 +78,6 @@
 
   h3 {
     font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border);
   }
 
   .detail-grid {
