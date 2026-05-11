@@ -6,108 +6,107 @@
   min-height: 100vh;
   background-color: #f8fafc;
   font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-}
 
-.login_card {
-  background-color: #ffffff;
-  padding: 40px;
-  border-radius: 8px;
-  /* Matching the form card shadow and border from the image */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
-  border: 1px solid #e2e8f0;
-  width: 100%;
-  max-width: 420px;
+  .login_card {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    border: 1px solid #e2e8f0;
+    width: 90vw;
+    max-width: 420px;
 
-  .title_wrapper {
-    text-align: center;
+    .title_wrapper {
+      text-align: center;
+    }
   }
-}
 
-.card_title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 8px;
-  margin-top: 0;
-}
-
-.card_subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin-bottom: 24px;
-}
-
-.form_group {
-  position: relative;
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-
-  label {
-    font-size: 13px;
-    font-weight: 600;
+  .card_title {
+    font-size: 24px;
+    font-weight: 700;
     color: #0f172a;
     margin-bottom: 8px;
+    margin-top: 0;
   }
 
-  .toggle_password_btn {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    transform: translateY(10%);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: #94a3b8;
+  .card_subtitle {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 24px;
+  }
+
+  .form_group {
+    position: relative;
+    margin-bottom: 20px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    transition: color 0.2s ease;
+    flex-direction: column;
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .toggle_password_btn {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(10%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #475569;
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .input_field {
+    padding: 12px 14px;
+    font-size: 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      /* Matching the blue primary color */
+      border-color: #2563eb;
+    }
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
+
+  .submit_btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #2563eb; /* Matching the Save button color */
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background-color 0.2s ease;
 
     &:hover {
-      color: #475569;
+      background-color: #1d4ed8;
     }
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-}
-
-.input_field {
-  padding: 12px 14px;
-  font-size: 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  outline: none;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    /* Matching the blue primary color */
-    border-color: #2563eb;
-  }
-
-  &::placeholder {
-    color: #94a3b8;
-  }
-}
-
-.submit_btn {
-  width: 100%;
-  padding: 14px;
-  background-color: #2563eb; /* Matching the Save button color */
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 8px;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #1d4ed8;
   }
 }
