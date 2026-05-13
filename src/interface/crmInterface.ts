@@ -5,7 +5,7 @@ export interface IInsuranceRecord {
   policyNo: string;
   mobileNo: string;
   email: string;
-  status: string;
+  status: "active" | "renewed" | "expired";
   policyDate: string;
   expiryDate: string;
   entryAt: string;
