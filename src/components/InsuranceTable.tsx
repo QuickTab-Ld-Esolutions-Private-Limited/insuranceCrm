@@ -315,6 +315,7 @@ const InsuranceTable = () => {
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="expired">Expired</option>
+            <option value="renewed">Renewed</option>
           </select>
         </div>
 
@@ -383,7 +384,9 @@ const InsuranceTable = () => {
                         className={
                           record.status === "active"
                             ? "activeStatus"
-                            : "expiredStatus"
+                            : record.status === "expired"
+                              ? "expiredStatus"
+                              : "renewedStatus"
                         }
                       >
                         {record.status}

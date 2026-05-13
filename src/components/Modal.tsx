@@ -72,7 +72,7 @@ const Modal: React.FC<ModalProps> = ({
       )
         .toISOString()
         .split("T")[0],
-      status: "active",
+      status: "renewed",
     };
 
     console.log(updatedRecord);
@@ -88,18 +88,6 @@ const Modal: React.FC<ModalProps> = ({
       setRenewed(false);
     }
   };
-
-  // // Date Time Options
-  // const options: Intl.DateTimeFormatOptions = {
-  //   day: "numeric",
-  //   month: "numeric",
-  //   year: "numeric",
-  //   timeZone: "Asia/Kolkata",
-  //   hour12: true,
-  //   hour: "2-digit",
-  //   minute: "2-digit",
-  //   second: "2-digit",
-  // };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -156,7 +144,7 @@ const Modal: React.FC<ModalProps> = ({
             <div className="detail-row">
               <span className="label">Status</span>
               <span
-                className={`value ${record.status === "active" ? "activeStatus" : "expiredStatus"}`}
+                className={`value ${record.status === "active" ? "activeStatus" : record.status === "expired" ? "expiredStatus" : "renewedStatus"}`}
               >
                 {record.status}
               </span>

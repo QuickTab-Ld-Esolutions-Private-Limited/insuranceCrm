@@ -10,104 +10,110 @@
   align-items: center;
   justify-content: center;
   z-index: 1010;
-}
 
-.modal-content {
-  background: var(--surface);
-  border-radius: 12px;
-  width: 90vw;
-  max-width: 500px;
-  padding: 2rem;
-  position: relative;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  .modal-content {
+    background: var(--surface);
+    border-radius: 12px;
+    width: 90vw;
+    max-width: 500px;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
-  .close-btn {
-    position: absolute;
-    top: 30px;
-    right: 1.5rem;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 40px;
-    color: var(--text-muted);
-    &:hover {
-      color: var(--text-main);
-    }
-
-    @media screen and (max-width: 670px) {
-      top: 40px;
-    }
-  }
-
-  input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.95rem;
-    transition: border-color 0.2s ease;
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-  }
-
-  .head_wrapper {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border);
-
-    @media screen and (max-width: 670px) {
-      flex-direction: column;
-      gap: 0px;
-    }
-  }
-
-  .head_wrapper span,
-  .del_btn_txt {
-    cursor: pointer;
-    font-weight: 600;
-    text-align: right;
-    color: #2563eb;
-  }
-
-  h3 {
-    font-size: 1.5rem;
-  }
-
-  .detail-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-
-      .activeStatus,
-      .expiredStatus {
-        text-transform: capitalize;
-      }
-
-      span.label {
-        color: var(--text-muted);
-        font-weight: 500;
-      }
-      span.value {
-        font-weight: 600;
+    .close-btn {
+      position: absolute;
+      top: 30px;
+      right: 1.5rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 40px;
+      color: var(--text-muted);
+      &:hover {
         color: var(--text-main);
+      }
 
-        &.activeStatus {
-          color: green;
+      @media screen and (max-width: 670px) {
+        top: 40px;
+      }
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+    }
+
+    .head_wrapper {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+
+      @media screen and (max-width: 670px) {
+        flex-direction: column;
+        gap: 0px;
+      }
+    }
+
+    .head_wrapper span,
+    .del_btn_txt {
+      cursor: pointer;
+      font-weight: 600;
+      text-align: right;
+      color: #2563eb;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+    }
+
+    .detail-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+
+        .activeStatus,
+        .expiredStatus,
+        .renewedStatus {
+          text-transform: capitalize;
         }
 
-        &.expiredStatus {
-          color: red;
+        span.label {
+          color: var(--text-muted);
+          font-weight: 500;
+        }
+        span.value {
+          font-weight: 600;
+          color: var(--text-main);
+          text-align: right;
+
+          &.activeStatus {
+            color: green;
+          }
+
+          &.expiredStatus {
+            color: red;
+          }
+
+          &.renewedStatus {
+            color: orange;
+          }
         }
       }
     }
